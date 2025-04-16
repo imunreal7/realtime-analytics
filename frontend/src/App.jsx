@@ -1,45 +1,40 @@
-// src/App.jsx
-import { useState, useEffect } from 'react';
-import { fetchMetrics } from './api';
-import { PageViewsChart } from './components/PageViewsChart';
-import { SessionGauge } from './components/SessionGauge';
-import { ActiveUsersCard } from './components/ActiveUsersCard';
+import { useEffect, useState } from 'react';
+import { fetchMetrics, initSocket } from './api';
+import ActiveUsersCard from './components/ActiveUsersCard';
+import PageViewsChart from './components/PageViewsChart';
+import SessionGauge from './components/SessionGauge';
 
 function App() {
-  const [history, setHistory] = useState([]);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    const poll = async () => {
-      try {
+    const useWebSocket = true;
+
+    if (useWebSocket) {
+      const socket = initSocket(metric => {
+        setData(prev => [...prev.slice(-19), metric]);
+      });
+      return () => socket.disconnect();
+    } else {
+      const poll = async () => {
         const metric = await fetchMetrics();
-        setHistory(prev => [...prev.slice(-19), metric]);
-      } catch (err) {
-        console.error('Failed to fetch metrics', err);
-      }
-    };
-    poll();
-    const id = setInterval(poll, 2000);
-    return () => clearInterval(id);
+        setData(prev => [...prev.slice(-19), metric]);
+      };
+      poll();
+      const id = setInterval(poll, 2000);
+      return () => clearInterval(id);
+    }
   }, []);
 
-  // Derive latest values
-  const latest = history[history.length - 1] || {
-    active_users: 0,
-    page_views: 0,
-    avg_session_duration: 0,
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-6 space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <ActiveUsersCard value={latest.active_users} />
-        <SessionGauge value={latest.avg_session_duration} />
+    <main className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold">📊 Real-Time Analytics Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <ActiveUsersCard value={data.at(-1)?.active_users} />
+        <SessionGauge value={data.at(-1)?.avg_session_duration} />
       </div>
-
-      <div className="mt-6">
-        <PageViewsChart data={history} />
-      </div>
-    </div>
+      <PageViewsChart data={data} />
+    </main>
   );
 }
 

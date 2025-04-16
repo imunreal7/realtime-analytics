@@ -1,10 +1,9 @@
-import React from 'react';
-
-export function ActiveUsersCard({ value }) {
+function ActiveUsersCard({ value }) {
   return (
-    <div className="p-4 bg-white rounded shadow">
-      <h2 className="text-sm uppercase text-gray-500">Active Users</h2>
-      <p className="text-3xl font-bold">{value}</p>
+    <div className="bg-white shadow p-4 rounded-2xl">
+      <h2 className="text-lg font-semibold">👥 Active Users</h2>
+      <p className="text-3xl font-bold">{value ?? '--'}</p>
     </div>
   );
 }
+export default ActiveUsersCard;

@@ -3,7 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
-export function PageViewsChart({ data }) {
+function PageViewsChart({ data }) {
   return (
     <div className="p-4 bg-white rounded shadow">
       <h2 className="text-sm uppercase text-gray-500 mb-2">Page Views</h2>
@@ -19,3 +19,5 @@ export function PageViewsChart({ data }) {
     </div>
   );
 }
+
+export default PageViewsChart
